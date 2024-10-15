@@ -1,0 +1,61 @@
+1)
+create or replace procedure pr_programacao
+as
+cursor cr_palco is select cod_palco, nome_palco from tb_palco;
+cursor cr_artista is select cod_artista, nome_artista from tb_artista;
+cursor cr_show is select cod_show, nome_show,data_show,cod_palco,cod_artista from tb_show order by 3;
+
+begin
+for x in cr_show loop
+ dbms_output.put_line(x.data_show);
+    for y in cr_palco loop
+        for z in cr_artista loop
+        if x.cod_palco = y.cod_palco and z.cod_artista = x.cod_artista 
+        then  dbms_output.put_line ('Palco: ' || y.nome_palco||'            ' || 'Artista: ' || z.nome_artista);
+        end if;
+        end loop;
+    end loop;
+end loop;
+
+
+end;
+/
+
+===========================================================================================================
+
+2) create or replace procedure pr_publico
+as
+cursor cr_estilo is select cod_estilo,nome_estilo from tb_estilo;
+cursor cr_show is select cod_estilo, publico from tb_show;
+total number := 0;
+begin
+
+for x in cr_estilo loop
+    for y in cr_show loop
+    
+    if x.cod_estilo = y.cod_estilo 
+    then total := total + y.publico;
+    end if;
+    end loop;
+     dbms_output.put_line(x.nome_estilo || ' ' || total);
+     total := 0;
+end loop;
+
+
+end;
+/
+=================================
+3)
+create or replace trigger tg_data_consulta
+before insert 
+on consulta
+referencing new as new
+for each row
+begin
+select 
+if data_consulta = :new.data_consulta and cod_paciente = new.cod_paciente
+then raise_application_error(-20001,'Este usuario não é elegivel ');
+end if;
+
+end;
+/
