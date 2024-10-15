@@ -1,0 +1,78 @@
+set serveroutput on;
+create or replace procedure pr_lista_clube
+as
+cursor  cr_esporte is select cod_esporte, nome_esporte from esporte;
+cursor  cr_atleta is select cod_esporte, cod_atleta, nome_atleta,cod_clube from atleta;
+cursor  cr_clube is select cod_clube, nome_clube from clube;
+
+
+begin
+for x in cr_clube loop
+dbms_output.put_line(x.nome_clube);
+        for y in cr_esporte loop
+             for z in cr_atleta loop
+                if x.cod_clube = z.cod_clube
+                and y.cod_esporte = z.cod_esporte
+                then dbms_output.put_line(z.nome_atleta || '    ' || y.nome_esporte);
+                end if;
+            end loop;
+        end loop;
+dbms_output.put_line('=====================');
+end loop;
+
+
+end;
+/
+==============================================
+create or replace procedure pr_qde_cmd
+as
+cursor cr_usuario is select cod_usuario,login_usuario from gilberto.usuario;
+cursor cr_conexao is select cod_usuario,data_cnx,cod_cnx from conexao;
+cursor cr_comandos is select cod_cnx, cod_usuario from comandos;
+total number := 0;
+begin
+
+for x in cr_conexao loop
+dbms_output.put_line('Data: '|| '   '|| x.data_cnx);
+        for y in cr_usuario loop
+             for z in cr_comandos loop
+               if y.cod_usuario = z.cod_usuario
+               and x.cod_cnx = z.cod_cnx
+               then total := total + 1;
+               dbms_output.put_line(y.login_usuario|| '     ' || total || '  comandos');
+               end if;
+            end loop;
+        end loop;
+dbms_output.put_line('=====================');
+total := 0;
+end loop;
+
+end;
+/
+
+====================================================
+create or replace procedure pr_hist_cmd(nome varchar2)
+as
+cursor cr_usuario is select cod_usuario,login_usuario from gilberto.usuario;
+cursor cr_conexao is select cod_usuario,data_cnx,cod_cnx from conexao order by 2 desc;
+cursor cr_comandos is select cod_cnx, cod_usuario, corpo_cmd from comandos ;
+
+begin
+
+for x in cr_conexao loop
+dbms_output.put_line('Data: '|| '   '|| x.data_cnx);
+        for y in cr_usuario loop
+             for z in cr_comandos loop
+               if  x.cod_cnx = z.cod_cnx
+               and lower(nome) = lower (y.login_usuario)
+               then 
+               dbms_output.put_line(x.data_cnx|| '     ' || z.corpo_cmd);
+               end if;
+            end loop;
+        end loop;
+dbms_output.put_line('=====================');
+
+end loop;
+
+end;
+/
